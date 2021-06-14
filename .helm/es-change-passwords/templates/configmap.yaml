@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "es-change-passwords.fullname" . }}
+  labels:
+    {{- include "es-change-passwords.labels" . | nindent 4 }}
+data:
+  config.yml: |
+    passwords:
+      {{- toYaml .Values.passwords | nindent 6 }}

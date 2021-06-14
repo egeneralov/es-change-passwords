@@ -1,0 +1,73 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "es-change-passwords.fullname" . }}-{{ toYaml .Values.passwords | sha256sum | trunc 10 }}
+  labels:
+    {{- include "es-change-passwords.labels" . | nindent 4 }}
+spec:
+  backoffLimit: 2
+  completions: 1
+  parallelism: 1
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+      labels:
+        {{- include "es-change-passwords.labels" . | nindent 8 }}
+    spec:
+      automountServiceAccountToken: false
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        {{- if .Values.certs.mount }}
+        - name: {{ .Values.certs.secretName }}
+          secret:
+            secretName: {{ .Values.certs.secretName }}
+        {{- end }}
+        - name: config
+          configMap:
+            name: {{ include "es-change-passwords.fullname" . }}
+            items:
+              - key: config.yml
+                path: config.yml
+      containers:
+        - name: passwords
+          image: {{ .Values.image }}
+          command:
+            - /go/bin/es-change-passwords
+            - -config=/config.yml
+            - -endpoint={{ .Values.endpoint }}
+            {{- if .Values.certs.mount }}
+            - -tls-ca=/certs/{{ .Values.certs.keyCA }}
+            - -tls-cert=/certs/{{ .Values.certs.keyCert }}
+            - -tls-key=/certs/{{ .Values.certs.keyKey }}
+            {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+#          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: config
+              mountPath: /config.yml
+              readOnly: true
+              subPath: config.yml
+            {{- if .Values.certs.mount }}
+            - name: {{ .Values.certs.secretName }}
+              mountPath: /certs
+            {{- end }}
+      restartPolicy: OnFailure
+      terminationGracePeriodSeconds: 10
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

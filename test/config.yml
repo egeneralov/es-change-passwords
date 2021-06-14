@@ -1,0 +1,16 @@
+passwords: []
+#  - username: elastic
+#    old_password: changeme
+#    password: newChangeMe
+#  - username: apm_system
+#    password: newChangeMe
+#  - username: beats_system
+#    password: newChangeMe
+#  - username: kibana
+#    password: newChangeMe
+#  - username: kibana_system
+#    password: newChangeMe
+#  - username: logstash_system
+#    password: newChangeMe
+#  - username: remote_monitoring_user
+#    password: newChangeMe

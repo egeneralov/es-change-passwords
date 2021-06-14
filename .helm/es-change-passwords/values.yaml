@@ -1,0 +1,43 @@
+image: egeneralov/es-change-passwords
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: "es-pwd"
+
+resources:
+   limits:
+     cpu: 100m
+     memory: 128Mi
+   requests:
+     cpu: 10m
+     memory: 16Mi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+certs:
+  mount: true
+  secretName: "es-http"
+  keyCA: ca.crt
+  keyCert: tls.crt
+  keyKey: tls.key
+
+endpoint: "https://es-headless:9200"
+
+# boxed users
+passwords: []
+#  - username: elastic
+#    old_password: changeme
+#    password: newChangeMe
+#  - username: apm_system
+#    password: newChangeMe
+#  - username: beats_system
+#    password: newChangeMe
+#  - username: kibana
+#    password: newChangeMe
+#  - username: kibana_system
+#    password: newChangeMe
+#  - username: logstash_system
+#    password: newChangeMe
+#  - username: remote_monitoring_user
+#    password: newChangeMe
