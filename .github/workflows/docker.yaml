@@ -10,12 +10,6 @@ jobs:
       - name: docker login
         uses: docker/login-action@v1
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: docker login
-        uses: docker/login-action@v1
-        with:
           registry: docker.pkg.github.com
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
@@ -24,7 +18,6 @@ jobs:
         with:
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}/es-change-passwords:${{ github.sha }}
             docker.pkg.github.com/${{ github.repository }}:${{ github.sha }}
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
